@@ -4,17 +4,15 @@ import com.bulenkov.darcula.DarculaLaf;
 import eu.flrkv.civassign.CivUtils.Civilization;
 import eu.flrkv.civassign.GUI.Frames.MainMenu;
 import eu.flrkv.civassign.GUI.GUIController;
-import eu.flrkv.civassign.Storage.SQLiteConnection;
+import eu.flrkv.civassign.Storage.SQLiteController;
 import eu.flrkv.civassign.Utils.Utils;
 
 import javax.swing.*;
-import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Klasse um das Programm zu starrten
+ * Klasse um das Programm zu starten
  */
 public class Main {
 
@@ -30,27 +28,15 @@ public class Main {
         // Try to set new look & Feel
         loadLookAndFeel(new DarculaLaf());
 
+        // Try to register Drivers
+        registerDrivers();
+
+        // Initialization check
+        Init.checkInitialization();
+
         // Create GUI & Start GUI
         GUIController g = new GUIController();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                g.run();
-            }
-        });
-
-        try {
-            Connection c = SQLiteConnection.getConnection();
-            if (c.isClosed()) Utils.consoleLog("ERROR", "Can't connect to database!");
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-
-
+        SwingUtilities.invokeLater(g::run);
     }
 
     /**
@@ -69,11 +55,12 @@ public class Main {
     }
 
 
-    private void registerDrivers()
+    private static void registerDrivers()
     {
         try {
-            Utils.consoleLog("INFO", "Registering sqLite JDBC driver...");
+            Utils.consoleLog("INFO", "Registering SQLite JDBC driver...");
             DriverManager.registerDriver(new org.sqlite.JDBC());
+            Utils.consoleLog("INFO", "SQLite JDBC Driver was successfully registered!");
         } catch (SQLException e) {
             Utils.consoleLog("ERROR", "Failed to load the mySQL JDBC driver!");
         }
